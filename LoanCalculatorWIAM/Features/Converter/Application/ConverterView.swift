@@ -23,7 +23,7 @@ struct ConverterView: View {
     init(store: Store<LoanState, LoanAction>) {
         self.store = store
         _amountValue = State(initialValue: store.state.loan.amount)
-        _durationValue = State(initialValue: Double(store.state.loan.duration))
+        _durationValue = State(initialValue: Double(store.state.loan.period))
         _returnValue = State(initialValue: Double(store.state.loan.returnAmount))
         _returnDate = State(initialValue: store.state.loan.returnDate)
         _processState = State(initialValue: store.state.loan.processState)
@@ -108,7 +108,7 @@ struct ConverterView: View {
             }
 
             Button {
-                store.dispatch(.startProcessing)
+                store.dispatch(.startProcessing(store.state.loan))
             } label: {
                 if processState == .processing {
                     HStack {
@@ -175,6 +175,12 @@ struct ConverterView: View {
                         }
                     }
                 }
+                if store.state.isIncorrectAmount {
+                    alertTitle = "Incorrect amount"
+                    alertMessage = "Please change amount according to limitation"
+                    showAlert = true
+                    store.dispatch(.reset)
+                }
             }
         )
         .alert(
@@ -209,7 +215,7 @@ struct ConverterView: View {
 #Preview {
     ConverterView(
         store: Store<LoanState, LoanAction>(
-            initial: LoanState.init(loan: LoanModel(amount: 10000, duration: 14, creditRate: 15, processState: .idle)),
+            initial: LoanState.init(loan: LoanModel(amount: 10000, period: 14, creditRate: 15, processState: .idle)),
             reducer: { _, _ in  }
         )
     )

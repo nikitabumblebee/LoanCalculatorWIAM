@@ -12,9 +12,10 @@ enum LoanAction {
     case internetConnectionFailed
     case internetConnectionRestored
     case resetInternetNotification
-    case startProcessing
+    case startProcessing(LoanModel)
     case sendLoan(LoanModel)
     case updateAmount(Double)
+    case incorrectAmount
     case updateDays(Int)
     case submitLoanSuccess(LoanResponse)
     case submitLoanFailre(LoanError)

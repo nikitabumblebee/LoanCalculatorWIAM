@@ -11,4 +11,5 @@ struct LoanState: Equatable {
     var loan: LoanModel
     var isInternetAvailable: Bool? = nil
     var notifyOnRestoreInternetConnection: Bool? = nil
+    var isIncorrectAmount: Bool = false
 }

@@ -15,6 +15,8 @@ struct LoanValidation: Middleware {
 
     private enum Constants {
         static let maxRetryCount: Int = 3
+        static let minAmount: Double = 5_000
+        static let maxAmount: Double = 50_000
     }
 
     func process(
@@ -23,11 +25,16 @@ struct LoanValidation: Middleware {
         next: @escaping (Action) -> Void
     ) {
         switch action {
-        case .updateAmount:
+        case .updateAmount(let amount):
+            guard amount >= Constants.minAmount, amount <= Constants.maxAmount else {
+                next(.incorrectAmount)
+                return
+            }
             next(action)
         case .updateDays:
             next(action)
-        case .startProcessing:
+        case .startProcessing(let loanModel):
+            saveLastData(amount: loanModel.amount, period: loanModel.period)
             next(action)
         case .sendLoan(let loanModel):
             Task {
@@ -56,6 +63,8 @@ struct LoanValidation: Middleware {
             next(action)
         case .resetInternetNotification:
             next(action)
+        case .incorrectAmount:
+            next(action)
         }
     }
 
@@ -69,11 +78,10 @@ struct LoanValidation: Middleware {
 
         let loanRequest = LoanRequest(
             amount: loanModel.amount,
-            period: loanModel.duration,
+            period: loanModel.period,
             totalRepayment: loanModel.returnAmount
         )
 
-        try? await Task.sleep(for: .seconds(2))
         do {
             let httpBody = try encode(loanRequest: loanRequest)
             request.httpBody = httpBody
@@ -82,6 +90,7 @@ struct LoanValidation: Middleware {
             return .submitLoanSuccess(response)
         } catch {
             if retryCount < Constants.maxRetryCount {
+                try? await Task.sleep(for: .seconds(2))
                 return await tryToSendRequest(loanModel: loanModel, retryCount: retryCount + 1)
             } else {
                 if let error = error as? LoanError {
@@ -123,5 +132,10 @@ struct LoanValidation: Middleware {
         } catch {
             throw LoanError.jsonDecoding
         }
+    }
+
+    private func saveLastData(amount: Double, period: Int) {
+        UserDefaults.standard.lastAmount = amount
+        UserDefaults.standard.lastPeriod = period
     }
 }

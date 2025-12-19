@@ -11,7 +11,7 @@ struct ContentView: View {
     var body: some View {
         ConverterView(
             store: Store<LoanState, LoanAction>(
-                initial: LoanState(loan: LoanModel(amount: 10_000, duration: 14, creditRate: 15, processState: .idle)),
+                initial: LoanState(loan: LoanModel(creditRate: 15, processState: .idle)),
                 reducer: loanConverterReducer,
                 middleware: [AnyMiddleware(LoanValidation())]
             )

@@ -14,8 +14,8 @@
             filePath = "LoanCalculatorWIAM/Features/Converter/Application/ConverterView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "196"
-            endingLineNumber = "196"
+            startingLineNumber = "202"
+            endingLineNumber = "202"
             landmarkName = "formatAmount(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -46,8 +46,8 @@
             filePath = "LoanCalculatorWIAM/Features/Converter/Infrastructure/Middleware/LoanValidation.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "40"
-            endingLineNumber = "40"
+            startingLineNumber = "47"
+            endingLineNumber = "47"
             landmarkName = "process(action:state:next:)"
             landmarkType = "7">
          </BreakpointContent>
