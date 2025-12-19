@@ -36,7 +36,6 @@ struct LoanModel: Hashable, Identifiable {
 enum LoanProcessState: Hashable {
     case idle
     case processing
-    case retry(Int)
     case finish
     case error(LoanError)
 }

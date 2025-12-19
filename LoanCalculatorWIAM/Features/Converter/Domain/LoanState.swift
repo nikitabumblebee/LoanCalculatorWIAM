@@ -9,4 +9,6 @@ import Foundation
 
 struct LoanState: Equatable {
     var loan: LoanModel
+    var isInternetAvailable: Bool? = nil
+    var notifyOnRestoreInternetConnection: Bool? = nil
 }

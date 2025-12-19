@@ -12,6 +12,9 @@ enum LoanError: Error, Hashable {
     case invalidDuration(String)
     case invalidCreditRate(String)
     case jsonMapping(String)
+    case jsonEncoding
+    case requestFailed
+    case jsonDecoding
     case undefined
 }
 
@@ -24,6 +27,12 @@ extension LoanError: LocalizedError {
             return message
         case .invalidCreditRate(let message):
             return message
+        case .jsonEncoding:
+            return "Encoding error"
+        case .requestFailed:
+            return "Request failed"
+        case .jsonDecoding:
+            return "Decoding error"
         case .jsonMapping(let message):
             return message
         case .undefined:

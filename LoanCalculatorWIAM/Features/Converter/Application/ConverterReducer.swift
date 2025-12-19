@@ -13,7 +13,26 @@ func loanConverterReducer(_ state: inout LoanState, action: LoanAction) {
         state.loan.amount = amount
     case .updateDays(let days):
         state.loan.duration = days
+    case .startProcessing:
+        state.loan.processState = .processing
     case .sendLoan(let loan):
         state.loan = loan
+    case .submitLoanFailre(let error):
+        state.loan.processState = .error(error)
+    case .submitLoanSuccess(let response):
+        state.loan.processState = .finish
+    case .reset:
+        state.loan.processState = .idle
+    case .checkInternet:
+        break
+    case .internetConnectionFailed:
+        state.notifyOnRestoreInternetConnection = true
+        state.isInternetAvailable = false
+    case .internetConnectionRestored:
+        guard state.isInternetAvailable == false else { return }
+        state.notifyOnRestoreInternetConnection = true
+        state.isInternetAvailable = true
+    case .resetInternetNotification:
+        state.notifyOnRestoreInternetConnection = nil
     }
 }

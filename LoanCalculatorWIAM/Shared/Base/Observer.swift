@@ -13,9 +13,11 @@ enum ObserverStatus {
 }
 
 final class Observer<State> {
+    let queue: DispatchQueue
     private let observeBlock: (State) -> ObserverStatus
 
-    init(observe: @escaping (State) -> ObserverStatus) {
+    init(queue: DispatchQueue = .main, observe: @escaping (State) -> ObserverStatus) {
+        self.queue = queue
         self.observeBlock = observe
     }
 

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 struct ConverterView: View {
     let store: Store<LoanState, LoanAction>
@@ -14,6 +15,10 @@ struct ConverterView: View {
     @State private var durationValue: Double
     @State private var returnValue: Double
     @State private var returnDate: Date
+    @State private var processState: LoanProcessState
+    @State private var showAlert: Bool = false
+    @State private var alertMessage: String = ""
+    @State private var alertTitle: String = ""
 
     init(store: Store<LoanState, LoanAction>) {
         self.store = store
@@ -21,6 +26,7 @@ struct ConverterView: View {
         _durationValue = State(initialValue: Double(store.state.loan.duration))
         _returnValue = State(initialValue: Double(store.state.loan.returnAmount))
         _returnDate = State(initialValue: store.state.loan.returnDate)
+        _processState = State(initialValue: store.state.loan.processState)
     }
 
     var body: some View {
@@ -102,19 +108,88 @@ struct ConverterView: View {
             }
 
             Button {
-                store.dispatch(.sendLoan(store.state.loan))
+                store.dispatch(.startProcessing)
             } label: {
-                Text("Apply")
-                    .font(.title3.bold())
-                    .foregroundStyle(Color.white)
+                if processState == .processing {
+                    HStack {
+                        ProgressView()
+                            .progressViewStyle(.circular)
+                            .scaleEffect(0.8)
+                        Text("Processing...")
+                            .font(.title3.bold())
+                            .foregroundStyle(Color.white)
+                    }
+                } else {
+                    Text("Submit an application")
+                        .font(.title3.bold())
+                        .foregroundStyle(Color.white)
+                }
             }
             .frame(maxWidth: .infinity)
             .frame(height: 50)
-            .background(Color.accept)
+            .background((processState == .processing || store.state.isInternetAvailable == false) ? Color.gray.opacity(0.3) : Color.accept)
             .clipShape(.capsule)
-
+            .disabled(processState == .processing || store.state.isInternetAvailable == false)
         }
         .padding(32)
+        .onReceive(
+            store.objectWillChange,
+            perform: { _ in
+                if processState != store.state.loan.processState {
+                    switch store.state.loan.processState {
+                    case .error(let error):
+                        alertTitle = "Error"
+                        alertMessage = "Something went wrong!\n\(error.localizedDescription)"
+                        showAlert = true
+                    case .finish:
+                        alertTitle = "Success"
+                        alertMessage = "Your request for loan was successfully sent"
+                        showAlert = true
+                    case .processing:
+                        store.dispatch(.sendLoan(store.state.loan))
+                    default:
+                        break
+                    }
+                    processState = store.state.loan.processState
+                }
+                if store.state.notifyOnRestoreInternetConnection == true {
+                    if store.state.isInternetAvailable == false {
+                        alertTitle = "No internet connection"
+                        alertMessage = "Internet connection was failed. Please try again later"
+                        showAlert = true
+                        store.dispatch(.resetInternetNotification)
+                    } else {
+                        if showAlert {
+                            showAlert = false
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                alertTitle = "Internet connection restored"
+                                alertMessage = ""
+                                showAlert = true
+                                store.dispatch(.resetInternetNotification)
+                            }
+                        } else {
+                            alertTitle = "Internet connection restored"
+                            alertMessage = ""
+                            showAlert = true
+                            store.dispatch(.resetInternetNotification)
+                        }
+                    }
+                }
+            }
+        )
+        .alert(
+            alertTitle,
+            isPresented: $showAlert
+        ) {
+            Button("Ok", role: .cancel) {
+                store.dispatch(.reset)
+            }
+        } message: {
+            Text(alertMessage)
+        }
+        .onAppear {
+            store.dispatch(.checkInternet)
+        }
     }
 
     private func formatAmount(_ value: Double) -> String {
@@ -124,7 +199,7 @@ struct ConverterView: View {
         formatter.maximumFractionDigits = 2
         return formatter.string(from: NSNumber(value: value)) ?? "0"
     }
-    
+
     private func updateValues() {
         returnDate = store.state.loan.returnDate
         returnValue = store.state.loan.returnAmount

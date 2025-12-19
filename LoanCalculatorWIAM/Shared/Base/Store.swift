@@ -13,6 +13,7 @@ class Store<State, Action>: ObservableObject where State: Equatable {
     private let reducer: (inout State, Action) -> Void
     private var observers: Set<Observer<State>> = []
     private var middleware: [AnyMiddleware<State, Action>]
+    private let queue = DispatchQueue(label: "com.LoanCalculatorWIAM.Store-queue", qos: .userInitiated)
 
     init(
         initial state: State,
@@ -25,20 +26,28 @@ class Store<State, Action>: ObservableObject where State: Equatable {
     }
 
     func dispatch(_ action: Action) {
-        let middlewareChain = middleware.reversed().reduce({ action in
-            self.reducer(&self.state, action)
-            self.notifyObservers()
-        }) { next, mw in
-            return { action in
-                mw.process(action: action, state: self.state, next: next)
+        queue.sync { [weak self] in
+            guard let self else { return }
+            let middlewareChain = middleware.reversed().reduce({ action in
+                self.reducer(&self.state, action)
+                DispatchQueue.main.async { [weak self] in
+                    self?.objectWillChange.send()
+                }
+                self.notifyObservers()
+            }) { next, mw in
+                return { action in
+                    mw.process(action: action, state: self.state, next: next)
+                }
             }
+            middlewareChain(action)
         }
-        middlewareChain(action)
     }
 
     func subscribe(observer: Observer<State>) {
-        self.observers.insert(observer)
-        self.notify(observer)
+        queue.sync { [weak self] in
+            self?.observers.insert(observer)
+            self?.notify(observer)
+        }
     }
 
     private func notifyObservers() {
@@ -48,8 +57,15 @@ class Store<State, Action>: ObservableObject where State: Equatable {
     }
 
     private func notify(_ observer: Observer<State>) {
-        if observer.observe(state) == .dead {
-            observers.remove(observer)
+        let state = self.state
+        observer.queue.async { [weak self] in
+            guard let self else { return }
+            if observer.observe(state) == .dead {
+                self.queue.async { [weak self] in
+                    guard let self else { return }
+                    self.observers.remove(observer)
+                }
+            }
         }
     }
 }
