@@ -17,8 +17,7 @@ struct ConverterView: View {
     @State private var returnDate: Date
     @State private var processState: LoanProcessState
     @State private var showAlert: Bool = false
-    @State private var alertMessage: String = ""
-    @State private var alertTitle: String = ""
+    @State private var alertModel: AlertModel = AlertModel(title: "", message: "")
 
     init(store: Store<LoanState, LoanAction>) {
         self.store = store
@@ -138,12 +137,10 @@ struct ConverterView: View {
                 if processState != store.state.loan.processState {
                     switch store.state.loan.processState {
                     case .error(let error):
-                        alertTitle = "Error"
-                        alertMessage = error.localizedDescription
+                        alertModel = AlertModel(title: "Error", message: error.localizedDescription)
                         showAlert = true
                     case .finish:
-                        alertTitle = "Success"
-                        alertMessage = "Your request for loan was successfully sent"
+                        alertModel = AlertModel(title: "Success", message: "Your request for loan was successfully sent")
                         showAlert = true
                     case .processing:
                         store.dispatch(.sendLoan(store.state.loan))
@@ -154,22 +151,19 @@ struct ConverterView: View {
                 }
                 if store.state.notifyOnRestoreInternetConnection == true {
                     if store.state.isInternetAvailable == false {
-                        alertTitle = "No internet connection"
-                        alertMessage = "Internet connection was failed. Please try again later"
+                        alertModel = AlertModel(title: "No internet connection", message: "Internet connection was failed. Please try again later")
                         showAlert = true
                         store.dispatch(.resetInternetNotification)
                     } else {
                         if showAlert {
                             showAlert = false
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                alertTitle = "Internet connection restored"
-                                alertMessage = ""
+                                alertModel = AlertModel(title: "Internet connection restored", message: "")
                                 showAlert = true
                                 store.dispatch(.resetInternetNotification)
                             }
                         } else {
-                            alertTitle = "Internet connection restored"
-                            alertMessage = ""
+                            alertModel = AlertModel(title: "Internet connection restored", message: "")
                             showAlert = true
                             store.dispatch(.resetInternetNotification)
                         }
@@ -178,14 +172,14 @@ struct ConverterView: View {
             }
         )
         .alert(
-            alertTitle,
+            alertModel.title,
             isPresented: $showAlert
         ) {
             Button("Ok", role: .cancel) {
                 store.dispatch(.reset)
             }
         } message: {
-            Text(alertMessage)
+            Text(alertModel.message)
         }
         .onAppear {
             store.dispatch(.checkInternet)
