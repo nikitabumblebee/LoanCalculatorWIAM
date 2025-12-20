@@ -14,8 +14,8 @@
             filePath = "LoanCalculatorWIAM/Features/Converter/Application/ConverterView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "202"
-            endingLineNumber = "202"
+            startingLineNumber = "196"
+            endingLineNumber = "196"
             landmarkName = "formatAmount(_:)"
             landmarkType = "7">
          </BreakpointContent>

@@ -139,7 +139,7 @@ struct ConverterView: View {
                     switch store.state.loan.processState {
                     case .error(let error):
                         alertTitle = "Error"
-                        alertMessage = "Something went wrong!\n\(error.localizedDescription)"
+                        alertMessage = error.localizedDescription
                         showAlert = true
                     case .finish:
                         alertTitle = "Success"
@@ -174,12 +174,6 @@ struct ConverterView: View {
                             store.dispatch(.resetInternetNotification)
                         }
                     }
-                }
-                if store.state.isIncorrectAmount {
-                    alertTitle = "Incorrect amount"
-                    alertMessage = "Please change amount according to limitation"
-                    showAlert = true
-                    store.dispatch(.reset)
                 }
             }
         )

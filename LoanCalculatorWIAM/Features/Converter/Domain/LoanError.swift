@@ -8,7 +8,7 @@
 import Foundation
 
 enum LoanError: Error, Hashable {
-    case invalidAmount(String)
+    case invalidAmount
     case invalidDuration(String)
     case invalidCreditRate(String)
     case jsonMapping(String)
@@ -21,8 +21,8 @@ enum LoanError: Error, Hashable {
 extension LoanError: LocalizedError {
     var errorDescription: String? {
         switch self {
-        case .invalidAmount(let message):
-            return message
+        case .invalidAmount:
+            return "Invalid amount"
         case .invalidDuration(let message):
             return message
         case .invalidCreditRate(let message):

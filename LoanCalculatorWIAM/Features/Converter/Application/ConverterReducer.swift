@@ -23,7 +23,6 @@ func loanConverterReducer(_ state: inout LoanState, action: LoanAction) {
         state.loan.processState = .finish
     case .reset:
         state.loan.processState = .idle
-        state.isIncorrectAmount = false
     case .checkInternet:
         break
     case .internetConnectionFailed:
@@ -36,6 +35,6 @@ func loanConverterReducer(_ state: inout LoanState, action: LoanAction) {
     case .resetInternetNotification:
         state.notifyOnRestoreInternetConnection = nil
     case .incorrectAmount:
-        state.isIncorrectAmount = true
+        state.loan.processState = .error(LoanError.invalidAmount)
     }
 }
