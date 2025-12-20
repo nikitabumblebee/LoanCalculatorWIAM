@@ -31,61 +31,32 @@ struct ConverterView: View {
     var body: some View {
         VStack(spacing: 40) {
             // Amount Slider
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(spacing: 8) {
-                    Text("How much?")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(Color.primaryText)
-                    Spacer()
-                    Text("$\(formatAmount(amountValue))")
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(.currency)
-                }
-
-                Slider(value: $amountValue, in: 5_000...50_000, step: 1)
-                    .padding(.top, 8)
-                    .tint(.currency)
-                    .onChange(of: amountValue) { _, newValue in
-                        store.dispatch(.updateAmount(Double(newValue)))
-                        updateValues()
-                    }
-
-                HStack {
-                    Text("5000")
-                        .foregroundStyle(Color.secondaryText)
-                    Spacer()
-                    Text("50000")
-                        .foregroundStyle(Color.secondaryText)
-                }
+            ConverterSliderView(
+                value: $amountValue,
+                title: "How much?",
+                valueLabel: "$\(formatAmount(amountValue))",
+                accentColor: .currency,
+                formatValue: true,
+                step: 1,
+                minValue: 5_000,
+                maxValue: 50_000
+            ) { value in
+                store.dispatch(.updateAmount(value))
+                updateValues()
             }
 
-            // Days Slider
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Text("How long?")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(Color.primaryText)
-                    Spacer()
-                    Text("\(Int(durationValue)) days")
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(.duration)
-                }
-
-                Slider(value: $durationValue, in: 7...28, step: 7)
-                    .padding(.top, 8)
-                    .tint(.duration)
-                    .onChange(of: durationValue) { _, newValue in
-                        store.dispatch(.updateDays(Int(newValue)))
-                        updateValues()
-                    }
-
-                HStack {
-                    Text("7")
-                        .foregroundStyle(Color.secondaryText)
-                    Spacer()
-                    Text("28")
-                        .foregroundStyle(Color.secondaryText)
-                }
+            ConverterSliderView(
+                value: $durationValue,
+                title: "How long?",
+                valueLabel: "\(Int(durationValue)) days",
+                accentColor: .duration,
+                formatValue: false,
+                step: 7,
+                minValue: 7,
+                maxValue: 28
+            ) { value in
+                store.dispatch(.updateDays(Int(value)))
+                updateValues()
             }
 
             HStack {
