@@ -12,10 +12,8 @@ struct ConverterSliderView<T: BinaryFloatingPoint & Comparable>: View {
     let title: String
     let valueLabel: String
     let accentColor: Color
-    let formatValue: Bool
+    let rangeValue: ClosedRange<T>
     let step: T
-    let minValue: T
-    let maxValue: T
     var onChangeValue: (T) -> Void
 
     var body: some View {
@@ -39,20 +37,20 @@ struct ConverterSliderView<T: BinaryFloatingPoint & Comparable>: View {
                         self.value = T(newValue)
                     }
                 ),
-                in: Double(minValue)...Double(maxValue),
+                in: Double(rangeValue.lowerBound)...Double(rangeValue.upperBound),
                 step: Double(step)
             )
-                .padding(.top, 8)
-                .tint(accentColor)
-                .onChange(of: value) { _, newValue in
-                    onChangeValue(newValue)
-                }
+            .padding(.top, 8)
+            .tint(accentColor)
+            .onChange(of: value) { _, newValue in
+                onChangeValue(newValue)
+            }
 
             HStack {
-                Text(String(Int(minValue)))
+                Text(String(Double(rangeValue.lowerBound).formatAmount()))
                     .foregroundStyle(Color.secondaryText)
                 Spacer()
-                Text(String(Int(maxValue)))
+                Text(String(Double(rangeValue.upperBound).formatAmount()))
                     .foregroundStyle(Color.secondaryText)
             }
         }

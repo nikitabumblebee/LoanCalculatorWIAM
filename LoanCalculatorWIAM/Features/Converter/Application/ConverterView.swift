@@ -34,12 +34,10 @@ struct ConverterView: View {
             ConverterSliderView(
                 value: $amountValue,
                 title: "How much?",
-                valueLabel: "$\(formatAmount(amountValue))",
+                valueLabel: "$\(amountValue.formatAmount())",
                 accentColor: .currency,
-                formatValue: true,
+                rangeValue: 5_000...50_000,
                 step: 1,
-                minValue: 5_000,
-                maxValue: 50_000
             ) { value in
                 store.dispatch(.updateAmount(value))
                 updateValues()
@@ -50,10 +48,8 @@ struct ConverterView: View {
                 title: "How long?",
                 valueLabel: "\(Int(durationValue)) days",
                 accentColor: .duration,
-                formatValue: false,
+                rangeValue: 7...28,
                 step: 7,
-                minValue: 7,
-                maxValue: 28
             ) { value in
                 store.dispatch(.updateDays(Int(value)))
                 updateValues()
@@ -69,7 +65,7 @@ struct ConverterView: View {
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundStyle(Color.primaryText)
 
-                    Text("Return amount: \(formatAmount(returnValue))")
+                    Text("Return amount: \(returnValue.formatAmount())")
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundStyle(Color.primaryText)
                 }
@@ -155,14 +151,6 @@ struct ConverterView: View {
         .onAppear {
             store.dispatch(.checkInternet)
         }
-    }
-
-    private func formatAmount(_ value: Double) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.groupingSeparator = ","
-        formatter.maximumFractionDigits = 2
-        return formatter.string(from: NSNumber(value: value)) ?? "0"
     }
 
     private func updateValues() {
