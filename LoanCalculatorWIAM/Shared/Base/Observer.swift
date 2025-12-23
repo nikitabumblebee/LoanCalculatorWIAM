@@ -26,8 +26,8 @@ final class Observer<State> {
     }
 }
 
-// Позволяет использовать Observer в Set, что необходимо
-// для хранения наблюдателей в Store
+// Allows to use Observer in Set that requires
+// to storage observers in Store
 extension Observer: Hashable {
     static func == (lhs: Observer<State>, rhs: Observer<State>) -> Bool {
         return lhs === rhs

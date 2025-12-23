@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 
+@MainActor
 class Store<State, Action>: ObservableObject where State: Equatable {
     @Published private(set) var state: State
     private let reducer: (inout State, Action) -> Void
@@ -30,9 +31,7 @@ class Store<State, Action>: ObservableObject where State: Equatable {
             guard let self else { return }
             let middlewareChain = middleware.reversed().reduce({ action in
                 self.reducer(&self.state, action)
-                DispatchQueue.main.async { [weak self] in
-                    self?.objectWillChange.send()
-                }
+                self.objectWillChange.send()
                 self.notifyObservers()
             }) { next, mw in
                 return { action in
@@ -45,8 +44,9 @@ class Store<State, Action>: ObservableObject where State: Equatable {
 
     func subscribe(observer: Observer<State>) {
         queue.sync { [weak self] in
-            self?.observers.insert(observer)
-            self?.notify(observer)
+            guard let self else { return }
+            self.observers.insert(observer)
+            self.notify(observer)
         }
     }
 
@@ -60,8 +60,8 @@ class Store<State, Action>: ObservableObject where State: Equatable {
         let state = self.state
         observer.queue.async { [weak self] in
             guard let self else { return }
-            if observer.observe(state) == .dead {
-                self.queue.async { [weak self] in
+            if case .dead = observer.observe(state) {
+                Task { @MainActor [weak self] in
                     guard let self else { return }
                     self.observers.remove(observer)
                 }
@@ -69,3 +69,4 @@ class Store<State, Action>: ObservableObject where State: Equatable {
         }
     }
 }
+

@@ -56,7 +56,7 @@ class NetworkingService {
 
         return data
     }
-    
+
     private func handleMonitor() {
         monitor.pathUpdateHandler = { [weak self] path in
             DispatchQueue.main.async { [weak self] in

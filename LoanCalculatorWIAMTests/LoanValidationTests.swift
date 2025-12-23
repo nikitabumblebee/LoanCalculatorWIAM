@@ -28,12 +28,10 @@ final class LoanValidationTests: XCTestCase {
     // MARK: - Tests for updateAmount validation
 
     func testProcess_WithValidAmount_CallsNext() {
-        // Arrange
         let validAmount = 25_000.0
         let expectation = XCTestExpectation(description: "next should be called")
         var receivedAction: LoanAction?
 
-        // Act
         sut.process(
             action: .updateAmount(validAmount),
             state: mockState,
@@ -43,7 +41,6 @@ final class LoanValidationTests: XCTestCase {
             }
         )
 
-        // Assert
         wait(for: [expectation], timeout: 1.0)
         if case .updateAmount(let amount) = receivedAction {
             XCTAssertEqual(amount, validAmount)
@@ -53,12 +50,11 @@ final class LoanValidationTests: XCTestCase {
     }
 
     func testProcess_WithAmountTooLow_ReturnsIncorrectAmount() {
-        // Arrange
-        let tooLowAmount = 1_000.0 // Меньше minAmount (5_000)
+        // Less than minAmount (5_000)
+        let tooLowAmount = 1_000.0
         let expectation = XCTestExpectation(description: "next should be called")
         var receivedAction: LoanAction?
 
-        // Act
         sut.process(
             action: .updateAmount(tooLowAmount),
             state: mockState,
@@ -68,7 +64,6 @@ final class LoanValidationTests: XCTestCase {
             }
         )
 
-        // Assert
         wait(for: [expectation], timeout: 1.0)
         if case .incorrectAmount = receivedAction {
             XCTAssertTrue(true)
@@ -78,12 +73,11 @@ final class LoanValidationTests: XCTestCase {
     }
 
     func testProcess_WithAmountTooHigh_ReturnsIncorrectAmount() {
-        // Arrange
-        let tooHighAmount = 100_000.0 // Больше maxAmount (50_000)
+        // More than maxAmount (50_000)
+        let tooHighAmount = 100_000.0
         let expectation = XCTestExpectation(description: "next should be called")
         var receivedAction: LoanAction?
 
-        // Act
         sut.process(
             action: .updateAmount(tooHighAmount),
             state: mockState,
@@ -93,7 +87,6 @@ final class LoanValidationTests: XCTestCase {
             }
         )
 
-        // Assert
         wait(for: [expectation], timeout: 1.0)
         if case .incorrectAmount = receivedAction {
             XCTAssertTrue(true)
@@ -105,12 +98,10 @@ final class LoanValidationTests: XCTestCase {
     // MARK: - Tests for updateDays
 
     func testProcess_WithUpdateDays_CallsNext() {
-        // Arrange
         let days = 21
         let expectation = XCTestExpectation(description: "next should be called")
         var receivedAction: LoanAction?
 
-        // Act
         sut.process(
             action: .updateDays(days),
             state: mockState,
@@ -120,7 +111,6 @@ final class LoanValidationTests: XCTestCase {
             }
         )
 
-        // Assert
         wait(for: [expectation], timeout: 1.0)
         if case .updateDays(let receivedDays) = receivedAction {
             XCTAssertEqual(receivedDays, days)
@@ -132,16 +122,14 @@ final class LoanValidationTests: XCTestCase {
     // MARK: - Tests for startProcessing
 
     func testProcess_WithStartProcessing_SavesDataAndCallsNext() {
-        // Arrange
         let loanModel = LoanModel(creditRate: 15, processState: .idle)
         let expectation = XCTestExpectation(description: "next should be called")
         var receivedAction: LoanAction?
 
-        // Сохраняем текущие значения UserDefaults
+        // Save current values in UserDefaults
         let currentAmount = UserDefaults.standard.lastAmount
         let currentPeriod = UserDefaults.standard.lastPeriod
 
-        // Act
         sut.process(
             action: .startProcessing(loanModel),
             state: mockState,
@@ -151,7 +139,6 @@ final class LoanValidationTests: XCTestCase {
             }
         )
 
-        // Assert
         wait(for: [expectation], timeout: 1.0)
         if case .startProcessing = receivedAction {
             XCTAssertEqual(UserDefaults.standard.lastAmount, loanModel.amount)
@@ -168,11 +155,9 @@ final class LoanValidationTests: XCTestCase {
     // MARK: - Tests for reset action
 
     func testProcess_WithReset_CallsNext() {
-        // Arrange
         let expectation = XCTestExpectation(description: "next should be called")
         var receivedAction: LoanAction?
 
-        // Act
         sut.process(
             action: .reset,
             state: mockState,
@@ -182,7 +167,6 @@ final class LoanValidationTests: XCTestCase {
             }
         )
 
-        // Assert
         wait(for: [expectation], timeout: 1.0)
         if case .reset = receivedAction {
             XCTAssertTrue(true)
@@ -194,11 +178,9 @@ final class LoanValidationTests: XCTestCase {
     // MARK: - Tests for internet connection actions
 
     func testProcess_WithInternetConnectionFailed_CallsNext() {
-        // Arrange
         let expectation = XCTestExpectation(description: "next should be called")
         var receivedAction: LoanAction?
 
-        // Act
         sut.process(
             action: .internetConnectionFailed,
             state: mockState,
@@ -208,7 +190,6 @@ final class LoanValidationTests: XCTestCase {
             }
         )
 
-        // Assert
         wait(for: [expectation], timeout: 1.0)
         if case .internetConnectionFailed = receivedAction {
             XCTAssertTrue(true)
@@ -218,11 +199,9 @@ final class LoanValidationTests: XCTestCase {
     }
 
     func testProcess_WithInternetConnectionRestored_CallsNext() {
-        // Arrange
         let expectation = XCTestExpectation(description: "next should be called")
         var receivedAction: LoanAction?
 
-        // Act
         sut.process(
             action: .internetConnectionRestored,
             state: mockState,
@@ -232,7 +211,6 @@ final class LoanValidationTests: XCTestCase {
             }
         )
 
-        // Assert
         wait(for: [expectation], timeout: 1.0)
         if case .internetConnectionRestored = receivedAction {
             XCTAssertTrue(true)
@@ -244,12 +222,10 @@ final class LoanValidationTests: XCTestCase {
     // MARK: - Tests for success/failure actions
 
     func testProcess_WithSubmitLoanSuccess_CallsNext() {
-        // Arrange
         let mockResponse = LoanResponse(id: "1")
         let expectation = XCTestExpectation(description: "next should be called")
         var receivedAction: LoanAction?
 
-        // Act
         sut.process(
             action: .submitLoanSuccess(mockResponse),
             state: mockState,
@@ -259,7 +235,6 @@ final class LoanValidationTests: XCTestCase {
             }
         )
 
-        // Assert
         wait(for: [expectation], timeout: 1.0)
         if case .submitLoanSuccess = receivedAction {
             XCTAssertTrue(true)
@@ -269,12 +244,10 @@ final class LoanValidationTests: XCTestCase {
     }
 
     func testProcess_WithSubmitLoanFailure_CallsNext() {
-        // Arrange
         let error = LoanError.requestFailed
         let expectation = XCTestExpectation(description: "next should be called")
         var receivedAction: LoanAction?
 
-        // Act
         sut.process(
             action: .submitLoanFailre(error),
             state: mockState,
@@ -284,7 +257,6 @@ final class LoanValidationTests: XCTestCase {
             }
         )
 
-        // Assert
         wait(for: [expectation], timeout: 1.0)
         if case .submitLoanFailre = receivedAction {
             XCTAssertTrue(true)
@@ -296,12 +268,10 @@ final class LoanValidationTests: XCTestCase {
     // MARK: - Boundary tests
 
     func testProcess_WithMinValidAmount_Succeeds() {
-        // Arrange
         let minValidAmount = 5_000.0
         let expectation = XCTestExpectation(description: "next should be called")
         var receivedAction: LoanAction?
 
-        // Act
         sut.process(
             action: .updateAmount(minValidAmount),
             state: mockState,
@@ -311,7 +281,6 @@ final class LoanValidationTests: XCTestCase {
             }
         )
 
-        // Assert
         wait(for: [expectation], timeout: 1.0)
         if case .updateAmount = receivedAction {
             XCTAssertTrue(true)
@@ -321,12 +290,10 @@ final class LoanValidationTests: XCTestCase {
     }
 
     func testProcess_WithMaxValidAmount_Succeeds() {
-        // Arrange
         let maxValidAmount = 50_000.0
         let expectation = XCTestExpectation(description: "next should be called")
         var receivedAction: LoanAction?
 
-        // Act
         sut.process(
             action: .updateAmount(maxValidAmount),
             state: mockState,
@@ -336,7 +303,6 @@ final class LoanValidationTests: XCTestCase {
             }
         )
 
-        // Assert
         wait(for: [expectation], timeout: 1.0)
         if case .updateAmount = receivedAction {
             XCTAssertTrue(true)
