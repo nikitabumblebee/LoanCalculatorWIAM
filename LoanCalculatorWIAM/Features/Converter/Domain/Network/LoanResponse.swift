@@ -8,5 +8,5 @@
 import Foundation
 
 struct LoanResponse: Codable, Equatable {
-    let id: String
+    let id: Int
 }

@@ -222,7 +222,7 @@ final class LoanValidationTests: XCTestCase {
     // MARK: - Tests for success/failure actions
 
     func testProcess_WithSubmitLoanSuccess_CallsNext() {
-        let mockResponse = LoanResponse(id: "1")
+        let mockResponse = LoanResponse(id: 1)
         let expectation = XCTestExpectation(description: "next should be called")
         var receivedAction: LoanAction?
 
