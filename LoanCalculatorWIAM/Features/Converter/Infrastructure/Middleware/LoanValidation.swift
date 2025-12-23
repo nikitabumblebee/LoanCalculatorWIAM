@@ -90,7 +90,7 @@ struct LoanValidation: Middleware {
             return .submitLoanSuccess(response)
         } catch {
             if retryCount < Constants.maxRetryCount {
-                try? await Task.sleep(for: .seconds(2))
+                try? await Task.sleep(for: .seconds(1))
                 return await tryToSendRequest(loanModel: loanModel, retryCount: retryCount + 1)
             } else {
                 if let error = error as? LoanError {
