@@ -16,13 +16,22 @@ extension UserDefaults {
             set(newValue, forKey: "lastAmount")
         }
     }
-    
+
     @objc var lastPeriod: Int {
         get {
             integer(forKey: "lastPeriod")
         }
         set {
             set(newValue, forKey: "lastPeriod")
+        }
+    }
+
+    @objc var appColorScheme: String {
+        get {
+            string(forKey: "appColorScheme") ?? "system"
+        }
+        set {
+            set(newValue, forKey: "appColorScheme")
         }
     }
 }

@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject private var themeManager = ThemeManager()
+
     var body: some View {
         ConverterView(
             store: Store<LoanState, LoanAction>(
@@ -16,6 +18,7 @@ struct ContentView: View {
                 middleware: [AnyMiddleware(LoanValidation())]
             )
         )
+        .environmentObject(themeManager)
     }
 }
 

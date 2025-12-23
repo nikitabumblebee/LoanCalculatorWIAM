@@ -9,6 +9,8 @@ import SwiftUI
 import Combine
 
 struct ConverterView: View {
+    @EnvironmentObject private var themeManager: ThemeManager
+
     let store: Store<LoanState, LoanAction>
 
     @State private var amountValue: Double
@@ -30,6 +32,17 @@ struct ConverterView: View {
 
     var body: some View {
         VStack(spacing: 40) {
+            Picker("Theme", selection: $themeManager.colorScheme) {
+                ForEach(AppTheme.allCases) { theme in
+                    Text(theme.title)
+                        .tag(theme)
+                }
+            }
+            .pickerStyle(.segmented)
+            .frame(width: 240)
+
+            Spacer()
+
             // Amount Slider
             ConverterSliderView(
                 value: $amountValue,
@@ -72,6 +85,8 @@ struct ConverterView: View {
 
                 Spacer()
             }
+
+            Spacer()
 
             Button {
                 store.dispatch(.startProcessing(store.state.loan))
@@ -151,6 +166,7 @@ struct ConverterView: View {
         .onAppear {
             store.dispatch(.checkInternet)
         }
+        .preferredColorScheme(themeManager.colorScheme.colorScheme)
     }
 
     private func updateValues() {
